@@ -24,6 +24,7 @@ env:
     id: email-input
 - inputText: email
 - assertVisible: Invalid email format
+- eraseText
 - inputText: ${EMAIL}
 - runFlow: ../utils/hide-keyboard.yaml
 - tapOn:

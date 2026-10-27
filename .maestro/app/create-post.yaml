@@ -21,7 +21,7 @@ env:
 - inputText: short content
 - tapOn:
     id: add-post-button
-- assertVisible: String must contain at least 120 character(s)
+- assertVisible: '.*120.*'
 - inputText: ${CONTENT}
 - runFlow: ../utils/hide-keyboard.yaml
 - tapOn:

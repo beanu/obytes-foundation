@@ -10,8 +10,8 @@ export function LoginScreen() {
   const router = useRouter();
   const signIn = useAuthStore.use.signIn();
 
-  const onSubmit: LoginFormProps['onSubmit'] = (data) => {
-    console.log(data);
+  // Demo only. Replace this handler with your product's authentication API.
+  const onSubmit: LoginFormProps['onSubmit'] = () => {
     signIn({ access: 'access-token', refresh: 'refresh-token' });
     router.push('/');
   };

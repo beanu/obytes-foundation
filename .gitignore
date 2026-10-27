@@ -26,3 +26,19 @@ expo-env.d.ts
 .argent/recordings/
 .argent/tmp/
 .argent/*.log
+
+# Local environment, credentials and generated release verification outputs
+.env
+.env.*
+!.env.example
+credentials.json
+/artifacts/
+/.build/
+*.xcarchive
+*.ipa
+*.aab
+*.apk
+
+# Additional signing key formats
+*.keystore
+*.pfx

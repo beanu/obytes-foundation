@@ -1,0 +1,10 @@
+.git/
+node_modules/
+ios/
+android/
+.build/
+artifacts/
+coverage/
+.env
+.env.*
+!.env.example

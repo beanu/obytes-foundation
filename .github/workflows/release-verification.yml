@@ -1,0 +1,54 @@
+name: Native release verification
+on:
+  workflow_dispatch:
+    inputs:
+      xcode_version:
+        description: Xcode version installed on the selected GitHub runner
+        default: '26.6'
+        type: string
+  pull_request:
+    paths:
+      - package.json
+      - bun.lock
+      - app.config.ts
+      - foundation.config.json
+      - env.ts
+      - 'src/**'
+      - 'scripts/**'
+      - .github/workflows/release-verification.yml
+permissions:
+  contents: read
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node-bun-install
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+      - run: bun run verify:android
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-release-verification
+          path: |
+            android/app/build/outputs/apk/release/*.apk
+            android/app/build/outputs/bundle/release/*.aab
+  ios:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node-bun-install
+      - name: Select available Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          # Current macos-26 hosted image lists 26.6. Local/EAS validation uses 27.1.
+          xcode-version: ${{ inputs.xcode_version || '26.6' }}
+      - run: bun run verify:ios
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ios-unsigned-release-archive
+          path: artifacts/ios/

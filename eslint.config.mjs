@@ -46,11 +46,16 @@ export default antfu(
   // typescript-eslint 8.71 with TypeScript 6 wrongly reports values in plain .js files
   // as "only used as a type". Use the core rule for .js until it is fixed upstream.
   {
-    files: ['**/*.js'],
+    files: ['**/*.{js,mjs,cjs}'],
     rules: {
       'unused-imports/no-unused-vars': 'off',
       'no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     },
+  },
+
+  {
+    files: ['**/*.node-test.mjs'],
+    rules: { 'e18e/prefer-static-regex': 'off' },
   },
 
   // Custom rules

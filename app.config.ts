@@ -1,6 +1,7 @@
 import type { ConfigContext, ExpoConfig } from '@expo/config';
 
-import type { AppIconBadgeConfig } from 'app-icon-badge/types';
+import z from 'zod';
+import foundation from './foundation.config.json';
 
 import 'tsx/cjs';
 
@@ -8,32 +9,24 @@ import 'tsx/cjs';
 // eslint-disable-next-line perfectionist/sort-imports
 import Env from './env';
 
-const EXPO_ACCOUNT_OWNER = 'obytes';
-const EAS_PROJECT_ID = 'c3e1075b-6fe7-4686-aa49-35b46a229044';
-
-const appIconBadgeConfig: AppIconBadgeConfig = {
-  enabled: Env.EXPO_PUBLIC_APP_ENV !== 'production',
-  badges: [
-    {
-      text: Env.EXPO_PUBLIC_APP_ENV,
-      type: 'banner',
-      color: 'white',
-    },
-    {
-      text: Env.EXPO_PUBLIC_VERSION.toString(),
-      type: 'ribbon',
-      color: 'white',
-    },
-  ],
-};
+// Build account settings stay out of the client environment module.
+const buildEnvironment = z.object({
+  EXPO_ACCOUNT_OWNER: z.string().min(1).optional(),
+  EAS_PROJECT_ID: z.uuid().optional(),
+}).parse({
+  EXPO_ACCOUNT_OWNER: process.env.EXPO_ACCOUNT_OWNER || undefined,
+  EAS_PROJECT_ID: process.env.EAS_PROJECT_ID || undefined,
+});
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: Env.EXPO_PUBLIC_NAME,
+  name: Env.EXPO_PUBLIC_APP_ENV === 'production'
+    ? Env.EXPO_PUBLIC_NAME
+    : `${Env.EXPO_PUBLIC_NAME} (${Env.EXPO_PUBLIC_APP_ENV})`,
   description: `${Env.EXPO_PUBLIC_NAME} Mobile App`,
-  owner: EXPO_ACCOUNT_OWNER,
+  owner: buildEnvironment.EXPO_ACCOUNT_OWNER,
   scheme: Env.EXPO_PUBLIC_SCHEME,
-  slug: 'obytesapp',
+  slug: foundation.slug,
   version: Env.EXPO_PUBLIC_VERSION.toString(),
   orientation: 'portrait',
   icon: './assets/icon.png',
@@ -63,6 +56,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   web: {
     favicon: './assets/favicon.png',
     bundler: 'metro',
+    output: 'single',
   },
   plugins: [
     [
@@ -113,21 +107,20 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
     'expo-localization',
     'expo-router',
-    ['app-icon-badge', appIconBadgeConfig],
     'expo-image',
     'expo-status-bar',
     [
       'expo-build-properties',
       {
         ios: {
-          enableSceneSupport: true,
+          deploymentTarget: '16.4',
         },
       },
     ],
   ],
   extra: {
-    eas: {
-      projectId: EAS_PROJECT_ID,
-    },
+    ...(buildEnvironment.EAS_PROJECT_ID
+      ? { eas: { projectId: buildEnvironment.EAS_PROJECT_ID } }
+      : {}),
   },
 });

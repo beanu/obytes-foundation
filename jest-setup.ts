@@ -106,3 +106,17 @@ global.window = {};
 
 // @ts-expect-error
 global.window = global;
+
+// Component tests exercise the real form state/validation, but do not connect
+// to the optional external devtools transport or run its reconnect timer.
+jest.mock('@tanstack/devtools-event-client', () => {
+  const actual = jest.requireActual('@tanstack/devtools-event-client');
+  return {
+    ...actual,
+    EventClient: class extends actual.EventClient {
+      constructor(options: Record<string, unknown>) {
+        super({ ...options, enabled: false });
+      }
+    },
+  };
+});
