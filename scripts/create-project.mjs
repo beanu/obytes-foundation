@@ -4,7 +4,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
 
 export const templateRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const excludedDirectories = new Set(['.git', '.expo', '.build', '.argent', 'node_modules', 'ios', 'android', 'artifacts', 'coverage']);
+const excludedDirectories = new Set(['.git', '.expo', '.build', '.argent', 'node_modules', 'ios', 'android', 'artifacts', 'coverage', 'dist', 'web-build', '.expo-shared']);
+const excludedFiles = new Set(['.DS_Store', '.eslintcache']);
 const credentialFile = /\.(?:jks|keystore|p8|p12|pfx|key|mobileprovision)$|^(?:credentials|google-services)\.json$|^GoogleService-Info\.plist$/i;
 
 const slugPattern = /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/;
@@ -45,6 +46,7 @@ export function createProject(options) {
       const basename = path.basename(entry);
       return !lstatSync(entry).isSymbolicLink()
         && !parts.some(part => excludedDirectories.has(part))
+        && !excludedFiles.has(basename)
         && !(basename.startsWith('.env') && basename !== '.env.example')
         && !credentialFile.test(basename);
     },

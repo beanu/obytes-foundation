@@ -18,11 +18,11 @@ function fixture(t) {
 
 test('exports a renamed project without credentials, native output or template history', (t) => {
   const options = fixture(t);
-  for (const directory of ['.git', 'node_modules', 'ios', 'artifacts']) {
+  for (const directory of ['.git', 'node_modules', 'ios', 'artifacts', 'dist', 'web-build', '.expo-shared']) {
     mkdirSync(path.join(options.source, directory));
     writeFileSync(path.join(options.source, directory, 'private'), 'do not copy');
   }
-  for (const name of ['.env', '.env.production', 'credentials.json', 'upload.jks', 'upload.pfx', 'google-services.json'])
+  for (const name of ['.env', '.env.production', 'credentials.json', '.DS_Store', '.eslintcache', 'upload.jks', 'upload.pfx', 'google-services.json'])
     writeFileSync(path.join(options.source, name), 'do not copy');
   symlinkSync(path.join(options.source, '.env.production'), path.join(options.source, 'secret-link'));
   const target = createProject(options);
@@ -33,7 +33,7 @@ test('exports a renamed project without credentials, native output or template h
   assert.equal(packageJSON.name, options.slug);
   assert.equal(packageJSON.repository, undefined);
   assert.equal(readFileSync(path.join(target, '.env'), 'utf8'), readFileSync(path.join(target, '.env.example'), 'utf8'));
-  for (const name of ['.git', 'node_modules', 'ios', 'artifacts', '.env.production', 'credentials.json', 'upload.jks', 'upload.pfx', 'google-services.json', 'secret-link'])
+  for (const name of ['.git', 'node_modules', 'ios', 'artifacts', 'dist', 'web-build', '.expo-shared', '.env.production', 'credentials.json', '.DS_Store', '.eslintcache', 'upload.jks', 'upload.pfx', 'google-services.json', 'secret-link'])
     assert.equal(existsSync(path.join(target, name)), false, name);
 });
 
